@@ -27,14 +27,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let year = year.unwrap_or(2024);
     let day = day.unwrap_or(1);
 
-    println!("{}", day);
-
     match year {
         2024 => match day {
             1 => year_2024::day_01::main(part, example),
             2 => year_2024::day_02::main(part, example),
             3 => year_2024::day_03::main(part, example),
             4 => year_2024::day_04::main(part, example),
+            5 => year_2024::day_05::main(part, example),
             _ => Err(format!("Day {} not implemented for year {}.", day, year).into()),
         },
         _ => Err(format!("Year {} not implemented.", year).into()),
