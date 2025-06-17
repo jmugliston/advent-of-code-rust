@@ -3,8 +3,8 @@ use std::fs;
 
 use crate::Part;
 
-const EXAMPLE_FILE: &str = "./src/aoc/year_0000/day_00/input/example.txt";
-const INPUT_FILE: &str = "./src/aoc/year_0000/day_00/input/input.txt";
+const EXAMPLE_FILE: &str = "./src/aoc/year_2024/day_08/input/example.txt";
+const INPUT_FILE: &str = "./src/aoc/year_2024/day_08/input/input.txt";
 
 pub fn main(part: Part, example: bool) -> Result<(), Box<dyn Error>> {
     let input_file = if example { EXAMPLE_FILE } else { INPUT_FILE };

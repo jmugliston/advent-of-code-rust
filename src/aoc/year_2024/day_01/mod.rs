@@ -1,23 +1,19 @@
 use std::error::Error;
 use std::{collections::HashMap, fs};
 
-use crate::utils;
+use crate::{utils, Part};
 
-const EXAMPLE_FILE: &str = "./src/year_2024/day_02/input/example.txt";
-const INPUT_FILE: &str = "./src/year_2024/day_02/input/input.txt";
+const EXAMPLE_FILE: &str = "./src/aoc/year_2024/day_01/input/example.txt";
+const INPUT_FILE: &str = "./src/aoc/year_2024/day_01/input/input.txt";
 
-pub fn main(part: Option<i32>, example: Option<bool>) -> Result<(), Box<dyn Error>> {
-    let input_file = if example.unwrap_or(true) {
-        EXAMPLE_FILE
-    } else {
-        INPUT_FILE
-    };
+pub fn main(part: Part, example: bool) -> Result<(), Box<dyn Error>> {
+    let input_file = if example { EXAMPLE_FILE } else { INPUT_FILE };
 
     let contents = fs::read_to_string(input_file)?;
 
-    let res = match part.unwrap_or(1) {
-        1 => part_1(&contents),
-        _ => part_2(&contents),
+    let res = match part {
+        Part::One => part_1(&contents),
+        Part::Two => part_2(&contents),
     };
 
     println!("{}", res);
@@ -65,11 +61,9 @@ pub fn part_2(input: &str) -> i32 {
 mod tests {
     use super::*;
 
-    const TEST_INPUT_FILE: &str = "./src/year_2024/day_01/input/example.txt";
-
     #[test]
     fn test_part_1() {
-        match fs::read_to_string(TEST_INPUT_FILE) {
+        match fs::read_to_string(EXAMPLE_FILE) {
             Ok(input) => {
                 let result = part_1(&input);
                 assert_eq!(result, 11);
@@ -83,7 +77,7 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        match fs::read_to_string(TEST_INPUT_FILE) {
+        match fs::read_to_string(EXAMPLE_FILE) {
             Ok(input) => {
                 let result = part_2(&input);
                 assert_eq!(result, 31);

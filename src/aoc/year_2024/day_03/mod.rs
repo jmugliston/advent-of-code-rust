@@ -2,21 +2,19 @@ use regex::Regex;
 use std::error::Error;
 use std::fs;
 
-const EXAMPLE_FILE: &str = "./src/year_2024/day_03/input/example.txt";
-const INPUT_FILE: &str = "./src/year_2024/day_03/input/input.txt";
+use crate::Part;
 
-pub fn main(part: Option<i32>, example: Option<bool>) -> Result<(), Box<dyn Error>> {
-    let input_file = if example.unwrap_or(true) {
-        EXAMPLE_FILE
-    } else {
-        INPUT_FILE
-    };
+const EXAMPLE_FILE: &str = "./src/aoc/year_2024/day_03/input/example.txt";
+const INPUT_FILE: &str = "./src/aoc/year_2024/day_03/input/input.txt";
+
+pub fn main(part: Part, example: bool) -> Result<(), Box<dyn Error>> {
+    let input_file = if example { EXAMPLE_FILE } else { INPUT_FILE };
 
     let contents = fs::read_to_string(input_file)?;
 
-    let res = match part.unwrap_or(1) {
-        1 => part_1(&contents),
-        _ => part_2(&contents),
+    let res = match part {
+        Part::One => part_1(&contents),
+        Part::Two => part_2(&contents),
     };
 
     println!("{}", res);
@@ -82,7 +80,7 @@ pub fn part_2(input: &str) -> i32 {
 mod tests {
     use super::*;
 
-    const EXAMPLE_FILE_2: &str = "./src/year_2024/day_03/input/example2.txt";
+    const EXAMPLE_FILE_2: &str = "./src/aoc/year_2024/day_03/input/example2.txt";
 
     #[test]
     fn test_part_1() {

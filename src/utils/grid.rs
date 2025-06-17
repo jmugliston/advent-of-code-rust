@@ -90,6 +90,13 @@ impl PointWithDirection {
         PointWithDirection { x, y, direction }
     }
 
+    pub fn as_point(&self) -> Point {
+        return Point {
+            x: self.x,
+            y: self.y,
+        };
+    }
+
     pub fn neighbours(&self) -> Vec<PointWithDirection> {
         use Direction::*;
         let directions = [
@@ -131,6 +138,25 @@ impl PointWithDirection {
             x: self.x,
             y: self.y,
             direction: new_direction,
+        };
+    }
+
+    pub fn next_step(&self) -> PointWithDirection {
+        use Direction::*;
+        let (dx, dy) = match self.direction {
+            N => (0, -1),
+            NE => (1, -1),
+            E => (1, 0),
+            SE => (1, 1),
+            S => (0, 1),
+            SW => (-1, 1),
+            W => (-1, 0),
+            NW => (-1, -1),
+        };
+        return PointWithDirection {
+            x: self.x + dx,
+            y: self.y + dy,
+            direction: self.direction,
         };
     }
 }
@@ -194,6 +220,14 @@ impl<T: PartialEq> Grid<T> {
         self.data
             .get(p.y as usize)
             .and_then(|row| row.get(p.x as usize))
+    }
+
+    pub fn set(&mut self, p: &Point, value: T) {
+        if let Some(row) = self.data.get_mut(p.y as usize) {
+            if let Some(cell) = row.get_mut(p.x as usize) {
+                *cell = value;
+            }
+        }
     }
 
     pub fn get_xy(&self, x: usize, y: usize) -> Option<&T> {
