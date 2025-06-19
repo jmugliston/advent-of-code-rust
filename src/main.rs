@@ -15,7 +15,7 @@ mod solvers;
 
 const BASE_URL: &str = "https://adventofcode.com";
 const USER_AGENT: &str = concat!(
-    "github.com/jmugliston/aoc-rust/ v",
+    "github.com/jmugliston/advent-of-code-rust v",
     env!("CARGO_PKG_VERSION")
 );
 
