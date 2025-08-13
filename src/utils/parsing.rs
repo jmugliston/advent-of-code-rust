@@ -24,3 +24,14 @@ pub fn read_lines_of_numbers(input: &str) -> Vec<Vec<i32>> {
         })
         .collect();
 }
+
+pub fn read_lines_of_digits(input: &str) -> Vec<Vec<i32>> {
+    return input
+        .lines()
+        .map(|line| {
+            line.chars()
+                .filter_map(|c| c.to_digit(10).map(|d| d as i32))
+                .collect::<Vec<i32>>()
+        })
+        .collect();
+}

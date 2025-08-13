@@ -18,7 +18,14 @@ pub static SOLVERS: Lazy<HashMap<(i32, i32), SolveFn>> = Lazy::new(|| {
     m.insert((2024, 6), aoc::year_2024::day_06::main as SolveFn);
     m.insert((2024, 7), aoc::year_2024::day_07::main as SolveFn);
     m.insert((2024, 8), aoc::year_2024::day_08::main as SolveFn);
-
+    m.insert((2024, 9), aoc::year_2024::day_09::main as SolveFn);
+    m.insert((2024, 10), aoc::year_2024::day_10::main as SolveFn);
+    m.insert((2024, 11), aoc::year_2024::day_11::main as SolveFn);
+    m.insert((2024, 12), aoc::year_2024::day_12::main as SolveFn);
+    m.insert((2024, 13), aoc::year_2024::day_13::main as SolveFn);
+    m.insert((2024, 14), aoc::year_2024::day_14::main as SolveFn);
+    m.insert((2024, 15), aoc::year_2024::day_15::main as SolveFn);
+    
     return m;
 });
 // --- AUTO GENERATED MAP END ---

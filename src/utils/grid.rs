@@ -35,25 +35,33 @@ impl Point {
         Point { x, y }
     }
 
-    pub fn neighbours(&self) -> Vec<Point> {
-        use Direction::*;
-        let directions = [
-            (N, (0, -1)),
-            (NE, (1, -1)),
-            (E, (1, 0)),
-            (SE, (1, 1)),
-            (S, (0, 1)),
-            (SW, (-1, 1)),
-            (W, (-1, 0)),
-            (NW, (-1, -1)),
-        ];
-        directions
+    pub fn neighbours(&self, include_diagonal: bool) -> Vec<Point> {
+        let directions: Vec<(i32, i32)> = if include_diagonal {
+            vec![
+                (0, -1),  // N
+                (1, 0),   // E
+                (0, 1),   // S
+                (-1, 0),  // W
+                (1, -1),  // NE
+                (1, 1),   // SE
+                (-1, 1),  // SW
+                (-1, -1), // NW
+            ]
+        } else {
+            vec![
+                (0, -1), // N
+                (1, 0),  // E
+                (0, 1),  // S
+                (-1, 0), // W
+            ]
+        };
+        return directions
             .iter()
-            .map(|&(_, (dx, dy))| Point {
+            .map(|(dx, dy)| Point {
                 x: self.x + dx,
                 y: self.y + dy,
             })
-            .collect()
+            .collect();
     }
 
     pub fn with_direction(&self, direction: Direction) -> PointWithDirection {
@@ -97,26 +105,34 @@ impl PointWithDirection {
         };
     }
 
-    pub fn neighbours(&self) -> Vec<PointWithDirection> {
-        use Direction::*;
-        let directions = [
-            (N, (0, -1)),
-            (NE, (1, -1)),
-            (E, (1, 0)),
-            (SE, (1, 1)),
-            (S, (0, 1)),
-            (SW, (-1, 1)),
-            (W, (-1, 0)),
-            (NW, (-1, -1)),
-        ];
-        directions
+    pub fn neighbours(&self, include_diagonal: bool) -> Vec<Point> {
+        let directions: Vec<(i32, i32)> = if include_diagonal {
+            vec![
+                (0, -1),  // N
+                (1, 0),   // E
+                (0, 1),   // S
+                (-1, 0),  // W
+                (1, -1),  // NE
+                (1, 1),   // SE
+                (-1, 1),  // SW
+                (-1, -1), // NW
+            ]
+        } else {
+            vec![
+                (0, -1), // N
+                (1, 0),  // E
+                (0, 1),  // S
+                (-1, 0), // W
+            ]
+        };
+
+        return directions
             .iter()
-            .map(|&(dir, (dx, dy))| PointWithDirection {
+            .map(|(dx, dy)| Point {
                 x: self.x + dx,
                 y: self.y + dy,
-                direction: dir,
             })
-            .collect()
+            .collect();
     }
 
     pub fn turn_clockwise(&self, degrees: i32) -> Self {
@@ -203,11 +219,18 @@ impl<T: PartialEq> Grid<T> {
         }
         return points;
     }
-}
 
-impl<T: PartialEq> Grid<T> {
     pub fn new(data: Vec<Vec<T>>) -> Self {
         Grid { data }
+    }
+
+    pub fn with_size(rows: usize, cols: usize, default: T) -> Self
+    where
+        T: Clone,
+    {
+        Grid {
+            data: vec![vec![default; cols]; rows],
+        }
     }
 
     pub fn size(&self) -> (usize, usize) {
@@ -220,6 +243,13 @@ impl<T: PartialEq> Grid<T> {
         self.data
             .get(p.y as usize)
             .and_then(|row| row.get(p.x as usize))
+    }
+
+    pub fn neighbours(&self, p: &Point, include_diagonal: bool) -> Vec<Point> {
+        p.neighbours(include_diagonal)
+            .into_iter()
+            .filter(|n| self.in_bounds(n))
+            .collect()
     }
 
     pub fn set(&mut self, p: &Point, value: T) {
@@ -237,15 +267,25 @@ impl<T: PartialEq> Grid<T> {
     pub fn compare(&self, other: &Grid<T>) -> bool {
         self.data == other.data
     }
+
+    pub fn in_bounds(&self, p: &Point) -> bool {
+        let (rows, cols) = self.size();
+        p.x >= 0 && p.y >= 0 && (p.y as usize) < rows && (p.x as usize) < cols
+    }
 }
 
 impl<T: fmt::Display> fmt::Display for Grid<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for row in &self.data {
-            for item in row {
-                write!(f, "{} ", item)?;
+        for (i, row) in self.data.iter().enumerate() {
+            for (j, item) in row.iter().enumerate() {
+                write!(f, "{}", item)?;
+                if j + 1 < row.len() {
+                    write!(f, " ")?;
+                }
             }
-            writeln!(f)?;
+            if i + 1 < self.data.len() {
+                writeln!(f)?;
+            }
         }
         Ok(())
     }
@@ -260,8 +300,8 @@ pub fn parse_number_grid(input: &str) -> Grid<u32> {
         input
             .lines()
             .map(|line| {
-                line.split_whitespace()
-                    .map(|num| num.parse::<u32>().expect("Failed to parse number"))
+                line.chars()
+                    .map(|c| c.to_digit(10).expect("Failed to parse digit"))
                     .collect()
             })
             .collect(),

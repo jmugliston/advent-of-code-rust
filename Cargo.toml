@@ -11,6 +11,9 @@ clap = { version = "4.5.40", features = ["derive"] }
 dotenv = "0.15.0"
 fs_extra = "1.3.0"
 itertools = "0.14.0"
+nalgebra = "0.33.2"
+ndarray = "0.16.1"
+ndarray-linalg = "0.17.0"
 once_cell = "1.21.3"
 regex = "1.11.1"
 reqwest = { version = "0.12.20", features = ["blocking"] }
