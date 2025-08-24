@@ -224,6 +224,15 @@ impl<T: PartialEq> Grid<T> {
         Grid { data }
     }
 
+    pub fn init(height: usize, width: usize, value: T) -> Grid<T>
+    where
+        T: Clone,
+    {
+        Grid {
+            data: vec![vec![value.clone(); width]; height],
+        }
+    }
+
     pub fn with_size(rows: usize, cols: usize, default: T) -> Self
     where
         T: Clone,
@@ -260,6 +269,17 @@ impl<T: PartialEq> Grid<T> {
         }
     }
 
+    /// Set the value at multiple points.
+    pub fn set_many<I>(&mut self, points: I, value: T)
+    where
+        I: IntoIterator<Item = Point>,
+        T: Clone,
+    {
+        for p in points {
+            self.set(&p, value.clone());
+        }
+    }
+
     pub fn get_xy(&self, x: usize, y: usize) -> Option<&T> {
         self.data.get(y).and_then(|row| row.get(x))
     }
@@ -271,6 +291,49 @@ impl<T: PartialEq> Grid<T> {
     pub fn in_bounds(&self, p: &Point) -> bool {
         let (rows, cols) = self.size();
         p.x >= 0 && p.y >= 0 && (p.y as usize) < rows && (p.x as usize) < cols
+    }
+
+    pub fn print_path(&self, path: &Vec<Point>)
+    where
+        T: From<char> + Copy + std::fmt::Display,
+    {
+        let mut grid_copy = self.clone();
+        for point in path {
+            grid_copy.set(point, T::from('0'));
+        }
+        println!("{}", grid_copy);
+    }
+
+    pub fn print_directed_path(&self, path: &Vec<PointWithDirection>)
+    where
+        T: From<char> + Copy + std::fmt::Display,
+    {
+        let mut grid_copy = self.clone();
+        for point in path {
+            let dir_char = match point.direction {
+                Direction::E => '>',
+                Direction::W => '<',
+                Direction::S => 'v',
+                Direction::N => '^',
+                Direction::NE => '/',
+                Direction::NW => '\\',
+                Direction::SE => '\\',
+                Direction::SW => '/',
+            };
+            grid_copy.set(&point.as_point(), T::from(dir_char));
+        }
+        println!("{}", grid_copy);
+    }
+
+    pub fn print_points(&self, path: &Vec<Point>)
+    where
+        T: From<char> + Copy + std::fmt::Display,
+    {
+        let mut grid_copy = self.clone();
+        for point in path {
+            grid_copy.set(&point, T::from('0'));
+        }
+        println!("{}", grid_copy);
     }
 }
 
@@ -288,6 +351,34 @@ impl<T: fmt::Display> fmt::Display for Grid<T> {
             }
         }
         Ok(())
+    }
+}
+
+impl fmt::Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
+impl fmt::Display for Direction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            Direction::N => "N",
+            Direction::NE => "NE",
+            Direction::E => "E",
+            Direction::SE => "SE",
+            Direction::S => "S",
+            Direction::SW => "SW",
+            Direction::W => "W",
+            Direction::NW => "NW",
+        };
+        write!(f, "{}", s)
+    }
+}
+
+impl fmt::Display for PointWithDirection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {}) {}", self.x, self.y, self.direction)
     }
 }
 

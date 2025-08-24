@@ -89,13 +89,13 @@ fn get_map(_robots: &Vec<Robot>, height: i32, width: i32) -> Vec<Vec<char>> {
     return robot_map;
 }
 
-fn print_map(map: Vec<Vec<char>>) {
-    println!();
-    for row in map.iter() {
-        println!("{}", row.iter().collect::<String>());
-    }
-    println!();
-}
+// fn print_map(map: Vec<Vec<char>>) {
+//     println!();
+//     for row in map.iter() {
+//         println!("{}", row.iter().collect::<String>());
+//     }
+//     println!();
+// }
 
 pub fn part_1(input: &str, example: bool) -> i32 {
     let mut robots = parse_robots(input);
