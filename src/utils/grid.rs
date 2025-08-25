@@ -1,4 +1,7 @@
-use std::fmt;
+use std::{
+    collections::{HashMap, VecDeque},
+    fmt,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Point {
@@ -90,6 +93,32 @@ impl Point {
                 y: self.y + dy * i,
             })
             .collect()
+    }
+
+    /// Returns all points within the given Manhattan distance from this point.
+    pub fn in_range(&self, distance: i32) -> Vec<Point> {
+        if distance <= 0 {
+            return Vec::new();
+        }
+        let mut points = Vec::new();
+        for dx in -distance..=distance {
+            let max_dy = distance - dx.abs();
+            for dy in -max_dy..=max_dy {
+                if dx == 0 && dy == 0 {
+                    continue;
+                }
+                points.push(Point {
+                    x: self.x + dx,
+                    y: self.y + dy,
+                });
+            }
+        }
+        points
+    }
+
+    /// Returns the Manhattan distance between two points.
+    pub fn manhattan_distance(&self, other: &Point) -> i32 {
+        (self.x - other.x).abs() + (self.y - other.y).abs()
     }
 }
 
@@ -205,21 +234,6 @@ impl<'a, T> IntoIterator for &'a mut Grid<T> {
 }
 
 impl<T: PartialEq> Grid<T> {
-    pub fn find_all(&self, value: &T) -> Vec<Point> {
-        let mut points = Vec::new();
-        for (y, row) in self.data.iter().enumerate() {
-            for (x, item) in row.iter().enumerate() {
-                if item == value {
-                    points.push(Point {
-                        x: x as i32,
-                        y: y as i32,
-                    });
-                }
-            }
-        }
-        return points;
-    }
-
     pub fn new(data: Vec<Vec<T>>) -> Self {
         Grid { data }
     }
@@ -246,6 +260,35 @@ impl<T: PartialEq> Grid<T> {
         let rows = self.data.len();
         let cols = if rows > 0 { self.data[0].len() } else { 0 };
         (rows, cols)
+    }
+
+    pub fn find(&self, value: &T) -> Option<Point> {
+        for (y, row) in self.data.iter().enumerate() {
+            for (x, item) in row.iter().enumerate() {
+                if item == value {
+                    return Some(Point {
+                        x: x as i32,
+                        y: y as i32,
+                    });
+                }
+            }
+        }
+        None
+    }
+
+    pub fn find_all(&self, value: &T) -> Vec<Point> {
+        let mut points = Vec::new();
+        for (y, row) in self.data.iter().enumerate() {
+            for (x, item) in row.iter().enumerate() {
+                if item == value {
+                    points.push(Point {
+                        x: x as i32,
+                        y: y as i32,
+                    });
+                }
+            }
+        }
+        return points;
     }
 
     pub fn get(&self, p: &Point) -> Option<&T> {
@@ -291,6 +334,54 @@ impl<T: PartialEq> Grid<T> {
     pub fn in_bounds(&self, p: &Point) -> bool {
         let (rows, cols) = self.size();
         p.x >= 0 && p.y >= 0 && (p.y as usize) < rows && (p.x as usize) < cols
+    }
+
+    /// Finds the shortest path from start to end, treating `walls` as impassable.
+    pub fn shortest_path(&self, start: Point, end: Point, walls: &char) -> Vec<Point>
+    where
+        T: std::cmp::PartialEq<char>,
+    {
+        let mut queue = VecDeque::new();
+        let mut visited = HashMap::new();
+        let mut came_from = HashMap::new();
+
+        queue.push_back(start);
+        visited.insert(start, true);
+
+        while let Some(current) = queue.pop_front() {
+            if current == end {
+                // Reconstruct the path
+                let mut path = vec![end];
+                let mut curr = end;
+                while let Some(&prev) = came_from.get(&curr) {
+                    path.push(prev);
+                    curr = prev;
+                }
+                path.reverse();
+                return path;
+            }
+
+            for p in current.neighbours(false) {
+                if !self.in_bounds(&p) {
+                    continue;
+                }
+
+                if visited.contains_key(&p) {
+                    continue;
+                }
+
+                if let Some(cell) = self.get(&p) {
+                    if cell == walls {
+                        continue;
+                    }
+                }
+
+                queue.push_back(p);
+                visited.insert(p, true);
+                came_from.insert(p, current);
+            }
+        }
+        Vec::new() // No path found
     }
 
     pub fn print_path(&self, path: &Vec<Point>)
