@@ -1,9 +1,9 @@
 pub fn read_lines(input: &str) -> Vec<String> {
-    return input.lines().map(|line| line.to_string()).collect();
+    input.lines().map(|line| line.to_string()).collect()
 }
 
 pub fn read_numbers(input: &str) -> Vec<i32> {
-    return input
+    input
         .lines()
         .map(|line| {
             line.split_whitespace()
@@ -11,27 +11,39 @@ pub fn read_numbers(input: &str) -> Vec<i32> {
                 .collect::<Vec<i32>>()
         })
         .flatten()
-        .collect();
+        .collect()
 }
 
 pub fn read_lines_of_numbers(input: &str) -> Vec<Vec<i32>> {
-    return input
+    input
         .lines()
         .map(|line| {
             line.split_whitespace()
                 .map(|part| part.parse::<i32>().expect("Invalid number"))
                 .collect::<Vec<i32>>()
         })
-        .collect();
+        .collect()
 }
 
 pub fn read_lines_of_digits(input: &str) -> Vec<Vec<i32>> {
-    return input
+    input
         .lines()
         .map(|line| {
             line.chars()
                 .filter_map(|c| c.to_digit(10).map(|d| d as i32))
                 .collect::<Vec<i32>>()
         })
-        .collect();
+        .collect()
+}
+
+pub fn read_groups_of_lines(input: &str) -> Vec<Vec<String>> {
+    input
+        .split("\n\n")
+        .map(|group| {
+            group
+                .lines()
+                .map(|line| line.to_string())
+                .collect::<Vec<String>>()
+        })
+        .collect::<Vec<Vec<String>>>()
 }

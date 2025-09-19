@@ -33,6 +33,8 @@ pub static SOLVERS: Lazy<HashMap<(i32, i32), SolveFn>> = Lazy::new(|| {
     m.insert((2024, 21), aoc::year_2024::day_21::main as SolveFn);
     m.insert((2024, 22), aoc::year_2024::day_22::main as SolveFn);
     m.insert((2024, 23), aoc::year_2024::day_23::main as SolveFn);
+    m.insert((2024, 24), aoc::year_2024::day_24::main as SolveFn);
+    m.insert((2024, 25), aoc::year_2024::day_25::main as SolveFn);
     
     return m;
 });

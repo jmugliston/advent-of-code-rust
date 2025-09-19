@@ -312,6 +312,28 @@ impl<T: PartialEq> Grid<T> {
         }
     }
 
+    /// Rotates the grid 90 degrees clockwise `times` times.
+    /// `times` can be any integer (positive for clockwise, negative for counterclockwise).
+    pub fn rotate(&self, times: i32) -> Grid<T>
+    where
+        T: Clone,
+    {
+        let mut result = self.clone();
+        let mut t = ((times % 4) + 4) % 4; // normalize to [0,3]
+        while t > 0 {
+            let (rows, cols) = result.size();
+            let mut new_data = vec![vec![result.data[0][0].clone(); rows]; cols];
+            for y in 0..rows {
+                for x in 0..cols {
+                    new_data[x][rows - 1 - y] = result.data[y][x].clone();
+                }
+            }
+            result = Grid { data: new_data };
+            t -= 1;
+        }
+        result
+    }
+
     /// Set the value at multiple points.
     pub fn set_many<I>(&mut self, points: I, value: T)
     where

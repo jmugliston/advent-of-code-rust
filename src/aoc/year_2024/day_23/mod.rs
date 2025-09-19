@@ -1,4 +1,6 @@
-use petgraph::graph::{NodeIndex, UnGraph};
+use itertools::Itertools;
+use petgraph::algo::maximal_cliques;
+use petgraph::graph::UnGraph;
 use std::collections::HashSet;
 use std::error::Error;
 use std::fs;
@@ -52,21 +54,16 @@ fn parse_graph(input: &str) -> UnGraph<String, ()> {
     graph
 }
 
+/// Find all triangles in the graph (3 nodes are all connected to each other)
 fn find_triangles(g: &UnGraph<String, ()>) -> Vec<(String, String, String)> {
     let mut triangles = Vec::new();
     let mut seen = HashSet::new();
 
     for u in g.node_indices() {
-        for v in g.neighbors(u) {
-            if v <= u {
-                continue;
-            }
-            for w in g.neighbors(v) {
-                if w <= v {
-                    continue;
-                }
+        for v in g.neighbors(u).filter(|&v| v > u) {
+            for w in g.neighbors(v).filter(|&w| w > v) {
                 if g.contains_edge(u, w) {
-                    let mut triple = vec![g[u].clone(), g[v].clone(), g[w].clone()];
+                    let mut triple = [g[u].clone(), g[v].clone(), g[w].clone()];
                     triple.sort();
                     if seen.insert(triple.clone()) {
                         triangles.push((triple[0].clone(), triple[1].clone(), triple[2].clone()));
@@ -93,64 +90,25 @@ pub fn part_1(input: &str) -> String {
     return triangles_containing_t.len().to_string();
 }
 
-fn get_largest_clique(g: &UnGraph<String, ()>) -> Vec<String> {
-    let mut best = Vec::new();
-    let mut r = HashSet::new();
-    let mut p: HashSet<_> = g.node_indices().collect();
-    let mut x = HashSet::new();
-
-    bron_kerbosch(g, &mut r, &mut p, &mut x, &mut best);
-
-    best.into_iter().map(|idx| g[idx].clone()).collect()
-}
-
-/// Bron–Kerbosch recursive algorithm for finding maximum clique
-/// https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm
-fn bron_kerbosch(
-    g: &UnGraph<String, ()>,
-    r: &mut HashSet<NodeIndex>,
-    p: &mut HashSet<NodeIndex>,
-    x: &mut HashSet<NodeIndex>,
-    best: &mut Vec<NodeIndex>,
-) {
-    if p.is_empty() && x.is_empty() {
-        if r.len() > best.len() {
-            *best = r.iter().cloned().collect();
-        }
-        return;
-    }
-
-    let pivot = p.iter().chain(x.iter()).next().cloned();
-
-    let candidates: Vec<NodeIndex> = if let Some(u) = pivot {
-        p.difference(&g.neighbors(u).collect()).cloned().collect()
-    } else {
-        p.iter().cloned().collect()
-    };
-
-    for v in candidates {
-        r.insert(v);
-
-        let mut p_new = &*p & &g.neighbors(v).collect();
-        let mut x_new = &*x & &g.neighbors(v).collect();
-
-        bron_kerbosch(g, r, &mut p_new, &mut x_new, best);
-
-        r.remove(&v);
-        p.remove(&v);
-        x.insert(v);
-    }
-}
-
 pub fn part_2(input: &str) -> String {
     let graph = parse_graph(input);
 
-    let largest = get_largest_clique(&graph);
+    let cliques = maximal_cliques(&graph);
 
-    let mut largest = largest;
-    largest.sort();
+    // Find the largest clique by number of nodes
+    let largest_clique = cliques
+        .into_iter()
+        .max_by_key(|clique| clique.len())
+        .unwrap_or_default();
 
-    return largest.join(",");
+    // Sort the node names to get the password
+    let password: String = largest_clique
+        .into_iter()
+        .map(|x| graph[x].clone())
+        .sorted()
+        .join(",");
+
+    return password;
 }
 
 #[cfg(test)]
