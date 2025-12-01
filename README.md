@@ -1,4 +1,4 @@
-🎄 Advent of Code (Rust) 🎄
+# 🎄 Advent of Code (Rust) 🎄
 
 <div align="left">
     <img
