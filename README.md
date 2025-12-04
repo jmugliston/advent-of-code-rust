@@ -26,8 +26,16 @@ cargo install
 
 ## Test
 
+Run all tests:
+
 ```sh
 cargo test
+```
+
+Watch a specific test:
+
+```sh
+cargo watch -x 'nextest run year_2025::day_01'
 ```
 
 ### Usage
